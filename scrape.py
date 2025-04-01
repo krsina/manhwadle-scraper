@@ -38,7 +38,7 @@ infobox_schema_explicit = {
 }
 
 
-async def getCharacters():
+async def get_characters():
     config = CrawlerRunConfig(
         css_selector="#mw-content-text > div.category-page__members",
     )
@@ -75,8 +75,6 @@ async def get_character_info(character_url):
         if result.extracted_content:
             try:
                 extracted_list = json.loads(result.extracted_content)
-                print(f"\nDEBUG Raw extracted list for {character_url}:\n{json.dumps(extracted_list, indent=2)}") # Keep debug for now
-
                 character_data = {}
                 current_section = None
 
@@ -84,7 +82,6 @@ async def get_character_info(character_url):
                     header = item.get("section_header")
                     if header and header.strip():
                         current_section = header.strip()
-                        print(f"DEBUG: Found section header '{current_section}' at index {i}")
                         continue
 
                     # Check for simple label/value pairs
@@ -94,8 +91,6 @@ async def get_character_info(character_url):
                         # Prevent overwriting already found Debut values if duplicates exist
                         if not label.strip().startswith("Debut"):
                            character_data[label.strip()] = value.strip()
-                           print(f"DEBUG: Found simple pair: '{label.strip()}': '{value.strip()}' at index {i}")
-
                     # --- Hardcoded Logic for Debut Values ---
                     for source in ["manhwa", "webnovel"]:
                         source_key = f"value_{source}"
@@ -107,7 +102,6 @@ async def get_character_info(character_url):
 
                             # Add to dictionary, potentially overwriting if found multiple times
                             character_data[compound_key] = source_value.strip()
-                            print(f"DEBUG: Hardcoded '{source_value.strip()}' as '{compound_key}' from item index {i}")
 
                 # Remove duplicates/empty values (simple cleanup)
                 # Using a second pass to prioritize non-null over null if keys clash, but the hardcoding logic should handle it mostly
@@ -151,7 +145,7 @@ async def get_character_info(character_url):
             return None
 
 async def main():
-    #await getCharacters()
+    #await get_characters()
     await get_character_info("https://return-of-the-blossoming-blade.fandom.com/wiki/Cheongmun")
 
 if __name__ == "__main__":
